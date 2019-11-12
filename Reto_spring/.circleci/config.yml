@@ -1,24 +1,25 @@
 version: 2.1
-build:
-  docker: # run the steps with Docker
-    - image: circleci/openjdk:11.0.3-jdk-stretch
-  working_directory: ~/Reto_spring
-  steps: # a collection of executable commands
-    - checkout # check out source code to working directory    
-    
-    - run:
-        name: Assemble JAR
-        command: |
-          # Skip this for other nodes
-          if [ "$CIRCLE_NODE_INDEX" == 0 ]; then
-            ./gradlew clean build
-          fi
-    - store_test_results:
-    # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-        path: build/test-results/test
-    # As the JAR was only assembled in the first build container, build/libs will be empty in all the other build containers.
-    - store_artifacts:
-        path: build/libs
+jobs:
+  build:
+    docker: # run the steps with Docker
+      - image: circleci/openjdk:11.0.3-jdk-stretch
+    working_directory: ~/Reto_spring
+    steps: # a collection of executable commands
+      - checkout # check out source code to working directory    
+      
+      - run:
+          name: Assemble JAR
+          command: |
+            # Skip this for other nodes
+            if [ "$CIRCLE_NODE_INDEX" == 0 ]; then
+              ./gradlew clean build
+            fi
+      - store_test_results:
+      # Upload test results for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: build/test-results/test
+      # As the JAR was only assembled in the first build container, build/libs will be empty in all the other build containers.
+      - store_artifacts:
+          path: build/libs
 orbs:
   aws-ecr: circleci/aws-ecr@0.0.10
   aws-ecs: circleci/aws-ecs@0.0.8
@@ -30,11 +31,3 @@ workflows:
           repo: "reto-ecr-springdocker"
           region: ${AWS_DEFAULT_REGION}
           tag: "latest,${CIRCLE_SHA1}"
-          
-      - aws-ecs/deploy-service-update:
-          requires:
-            - aws-ecr/build_and_push_image
-          aws-region: ${AWS_DEFAULT_REGION}
-          family: "${AWS_RESOURCE_NAME_PREFIX}-service"
-          cluster-name: "${AWS_RESOURCE_NAME_PREFIX}-cluster"
-          container-image-name-updates: "container=${AWS_RESOURCE_NAME_PREFIX}-service,tag=${CIRCLE_SHA1}"

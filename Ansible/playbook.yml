@@ -1,0 +1,4 @@
+- hosts: public
+  remote_user: ubuntu
+  roles:
+    - docker

@@ -1,0 +1,39 @@
+---
+- name: Install packages
+  become: true
+  apt:
+    name:
+      - software-properties-common
+    update_cache: yes
+          
+- name: Add repositories
+  become: true
+  apt_repository: repo='ppa:ansible/ansible' state=present
+
+- name: Install Ansible
+  become: true
+  apt:
+    name:
+      - ansible
+  
+- name: Copy ansible files
+  copy:
+    src: /mnt/c/Users/ccristancho/Documents/RampUp/Terraform_RampUp/Ansible/
+    dest: ./Ansible
+
+- name: Copy ansible cfg
+  become: true
+  copy:
+    src: /mnt/c/Users/ccristancho/Documents/RampUp/Terraform_RampUp/ansible.cfg
+    dest: /etc/ansible/ansible.cfg
+
+- name: Provisioning instances
+  become: true
+  command: ansible-playbook -i Ansible/priv_host Ansible/playbook.yml
+
+- name: Copy key
+  become: true
+  copy:
+    src: /mnt/c/Users/ccristancho/Documents/RampUp/Terraform_RampUp/cccc.pem
+    dest: /var/lib/jenkins/cccc.pem
+

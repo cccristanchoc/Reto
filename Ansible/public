@@ -1,0 +1,7 @@
+[public] 
+52.90.132.128 
+54.197.214.247
+
+[public:vars]
+ansible_ssh_private_key_file= retocccc.pem
+ansible_python_interpreter=/usr/bin/python3
